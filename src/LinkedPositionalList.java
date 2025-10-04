@@ -1,10 +1,8 @@
 import java.util.Iterator;
 
-
-
 public class LinkedPositionalList<E> implements Iterable<E> {
     // --- Nested Node Class (implements Position) ---
-    private static class Node<E> implements Position<E> {
+    static class Node<E> implements Position<E> {
         private E element;
         private Node<E> next;
         private Node<E> prev;
@@ -21,11 +19,11 @@ public class LinkedPositionalList<E> implements Iterable<E> {
             this.element = e;
         }
 
-        @Override
-        public String toString() {
-            if (element == null) return "";
-            return element.toString();
-        }
+        // @Override
+        // public String toString() {
+        //     if (element == null) return "";
+        //     return element.toString();
+        // }
 
         public Node<E> after() {
             return next;
@@ -93,7 +91,7 @@ public class LinkedPositionalList<E> implements Iterable<E> {
 
     public Node<E> set(E e, E newE) {
         Node<E> i = header.after();
-        while (i != null) {
+        while (i.after() != trailer) {
             if (i.getElement().equals(e)) {
                 i.setElement(newE);
                 return i;
@@ -105,7 +103,7 @@ public class LinkedPositionalList<E> implements Iterable<E> {
 
     public Node<E> remove(E e) {
         Node<E> i = header.after();
-        while (i != null) {
+        while (i.after() != trailer) {
             if (i.getElement().equals(e)) {
                 Node<E> before = i.before();
                 Node<E> after = i.after();
@@ -141,7 +139,7 @@ public class LinkedPositionalList<E> implements Iterable<E> {
 
     public Node<E> addAfter(E p, E e) {
         Node<E> i = header.after();
-        while (i != null) {
+        while (i.after() != trailer) {
             if (i.getElement().equals(p)) {
                 Node<E> newNode = new Node<>(e);
                 Node<E> current = i.after();
@@ -159,7 +157,7 @@ public class LinkedPositionalList<E> implements Iterable<E> {
 
     public Node<E> addBefore(E p, E e) {
         Node<E> i = header.after();
-        while (i != null) {
+        while (i.after() != trailer) {
             if (i.getElement().equals(p)) {
                 Node<E> newNode = new Node<>(e);
                 Node<E> current = i.before();
@@ -189,26 +187,27 @@ public class LinkedPositionalList<E> implements Iterable<E> {
     // ... Implement all the Positional List methods ...
 
     // --- Nested Iterator Class ---
-    private class ElementIterator<E> implements Iterator<E> {
-        Node<E> cursor =  (LinkedPositionalList.Node<E>) first(); // Start at the first element
+    class ElementIterator<E> implements Iterator<E> {
+        LinkedPositionalList.Node<E> cursor =  (LinkedPositionalList.Node<E>) header; // Start at the first element
         
         public boolean hasNext() {
             return cursor != null;
         }
         
         public E next() {
-            if (!hasNext()) {
-                throw new IllegalStateException("No next element");
+            if (cursor.after() == trailer) {
+                cursor = null;
+                return null;
             }
             cursor = cursor.after();
             E element = cursor.getElement();
             return element;
+            
             // Store the element at the current cursor
             // Advance the cursor to the next position using after()
             // Return the stored element
         }
 
-       
     }
     
     @Override
